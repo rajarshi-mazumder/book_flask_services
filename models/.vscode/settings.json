@@ -1,0 +1,7 @@
+{
+    "python.languageServer": "Pylance",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.extraPaths": [
+        "./venv/Lib/site-packages"  // Use this path for Windows
+    ]
+}
