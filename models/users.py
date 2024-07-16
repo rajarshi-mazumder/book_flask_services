@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 
 from .sqlalchemy_setup import db
+from datetime import datetime
 
 
 class User(db.Model):
@@ -21,13 +22,16 @@ class UserBooksRead(db.Model):
     __tablename__ = 'user_books_read'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), primary_key=True)
+    date = db.Column(db.DateTime, default=datetime.utcnow) 
 
 class UserBooksStarted(db.Model):
     __tablename__ = 'user_books_started'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), primary_key=True)
+    date = db.Column(db.DateTime, default=datetime.utcnow) 
 
 class UserInterestedCategories(db.Model):
     __tablename__ = 'user_interested_categories'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), primary_key=True)
+    date = db.Column(db.DateTime, default=datetime.utcnow) 

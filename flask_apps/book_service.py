@@ -94,7 +94,8 @@ def get_books(current_user):
             'description': book.description,
             'coverImgPath': book.cover_img_path,
             'author': {'name': book.author.name} if book.author else None,
-            'categories': [{'name': category.name} for category in book.categories]
+            'categories': [{'name': category.name} for category in book.categories],
+            'detailsHash': book.details_hash
         }
         books_list.append(book_data)
     return jsonify({"books": books_list})
@@ -125,7 +126,8 @@ def get_book(id):
         'description': book.description,
         'coverImgPath': book.cover_img_path,
         'author': {'name': book.author.name} if book.author else None,
-        'categories': [{'name': category.name} for category in book.categories]
+        'categories': [{'name': category.name} for category in book.categories],
+        'detailsHash': book.details_hash
     }
     return jsonify(book_data)
 

@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, Blueprint, make_response
 from config import Config
 from models.sqlalchemy_setup import db
 from models.books import  Book, Author, Category
-from models.users import User
+from models.users import User, UserBooksStarted, UserInterestedCategories, UserBooksRead
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
@@ -10,10 +10,27 @@ from datetime import datetime, timezone, timedelta
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required,  get_jwt_identity
 from functools import wraps
 import asyncio
+from sqlalchemy import desc
 
 auth_service= Blueprint("auth", __name__)
 
 token_expiration_time=timedelta(minutes=300)
+
+def user_data_map(user):
+    # Sort the books_started relationship in memory by the date attribute in UserBooksStarted
+    books_started_associations = UserBooksStarted.query.filter_by(user_id=user.id).order_by(desc(UserBooksStarted.date)).all()
+    books_started = [assoc.book_id for assoc in books_started_associations]
+    
+    user_data = {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "password": user.password,
+        "books_started": books_started
+    }
+    return user_data
+
+
 
 def auth_required(f):
     @wraps(f)
@@ -37,13 +54,7 @@ def silent_login():
     if not current_user:
         return make_response(jsonify({'message':'user not found'}), 404)
     
-    user_data = {
-        'id': current_user.id,
-        'name': current_user.name,
-        'email': current_user.email,
-        'admin': current_user.admin,
-        # Add any other user fields you want to return
-    }
+    user_data = user_data_map(current_user)
     return jsonify({"user_data":user_data}), 200
 
 @auth_service.route("/login")
@@ -61,13 +72,7 @@ def login():
     if check_password_hash(user.password, auth.password):
         token = create_access_token(identity={'id': user.id}, expires_delta= token_expiration_time)
 
-        user_data = {
-            'id': user.id,
-            'name': user.name,
-            'email': user.email,
-            'admin': user.admin,
-            # Add any other user fields you want to return
-        }
+        user_data = user_data_map(user)
         print({"user_data": user_data})
         return jsonify({'token': token, "user_data": user_data})
     
@@ -85,13 +90,7 @@ def register():
     
     new_user= create_user_object(name, email, password)
     token = create_access_token(identity={'id': new_user.id}, expires_delta= token_expiration_time)
-    user_data = {
-        'id': new_user.id,
-        'name': new_user.name,
-        'email': new_user.email,
-        'admin': new_user.admin,
-        # Add any other user fields you want to return
-    }
+    user_data = user_data_map(new_user)
     return jsonify({'token': token, "user_data":user_data})
 
 
