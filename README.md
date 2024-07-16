@@ -65,9 +65,9 @@ Flask-based web application with modular services for books, users, and authenti
 ### Endpoints Requiring Authentication
 **Books Service:**
 
-POST /books - Add a new book
-PUT /books/<id> - Update a book
-DELETE /books/<id> - Delete a book
+- POST /books - Add a new book
+- PUT /books/<id> - Update a book
+- DELETE /books/<id> - Delete a book
 
 **To access these views, you need to pass the auth token.**
 Get the Auth Token:
