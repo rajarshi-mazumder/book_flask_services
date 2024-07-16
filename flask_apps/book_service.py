@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify, Blueprint
 from config import Config
 from models.books import db, Book, Author, BookCategory, BookDetails, Category
 from .auth_service import auth_required
+import hashlib
+import json
 
 books_service = Blueprint("services", __name__)
 
@@ -214,7 +216,10 @@ def add_book_details(id):
         else:
             # Update existing BookDetails
             book_details.book_chapters = book_chapters
-            db.session.commit()
+            
+        # Calculate hash
+        book_details_hash = hashlib.sha256(json.dumps(book_chapters).encode()).hexdigest()
+        book.details_hash = book_details_hash
 
         db.session.commit()
         return jsonify({'message': 'Book details added/updated successfully'}), 201

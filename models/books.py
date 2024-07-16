@@ -32,7 +32,8 @@ class Book(db.Model):
     author = db.relationship('Author', backref=db.backref('books', lazy=True))
     categories = db.relationship('Category', secondary='book_category', backref=db.backref('books', lazy=True))
     book_details = db.relationship('BookDetails', backref='book', uselist=False)
-
+    details_hash = db.Column(db.String(64), nullable=True)
+    
     def __repr__(self):
         return f'<Book {self.title}>'
 
