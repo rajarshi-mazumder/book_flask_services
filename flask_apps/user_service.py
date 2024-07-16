@@ -52,14 +52,14 @@ def add_user_books_started(user_id):
     
     data = request.get_json()
     books_started_ids = data.get("books_started", [])
-
+    print(books_started_ids)
     try:
         for book_id in books_started_ids:
             book = Book.query.get(book_id)
             if book:
                 user_book_started = UserBooksStarted.query.filter_by(user_id=user.id, book_id=book.id).first()
                 if not user_book_started:
-                    user_book_started = UserBooksStarted(user_id=user.id, book_id=book.id, date=datetime.now(datetime.UTC))
+                    user_book_started = UserBooksStarted(user_id=user.id, book_id=book.id, date=datetime.now(timezone.utc))
                     db.session.add(user_book_started)
         
         db.session.commit()

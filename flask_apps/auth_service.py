@@ -19,7 +19,7 @@ token_expiration_time=timedelta(minutes=300)
 def user_data_map(user):
     # Sort the books_started relationship in memory by the date attribute in UserBooksStarted
     books_started_associations = UserBooksStarted.query.filter_by(user_id=user.id).order_by(desc(UserBooksStarted.date)).all()
-    books_started = [assoc.book_id for assoc in books_started_associations]
+    books_started = [{"book_id": assoc.book_id, "started_date": assoc.date} for assoc in books_started_associations]
     
     user_data = {
         "id": user.id,
