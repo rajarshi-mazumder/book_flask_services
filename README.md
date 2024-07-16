@@ -73,6 +73,7 @@ Flask-based web application with modular services for books, users, and authenti
 Get the Auth Token:
 
 1.) Perform the login endpoint with basic auth to get the auth token.
+
 2.) If you do not have user credentials, call the /register - endpoint with a POST request body that includes the following fields:
 
    {
