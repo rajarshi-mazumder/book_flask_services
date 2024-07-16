@@ -62,6 +62,37 @@ Flask-based web application with modular services for books, users, and authenti
    b.) Run the Docker container:
      docker run -p 8080:8080 flask-app
 
+### Endpoints Requiring Authentication
+**Books Service:**
 
+POST /books - Add a new book
+PUT /books/<id> - Update a book
+DELETE /books/<id> - Delete a book
 
+**To access these views, you need to pass the auth token.**
+Get the Auth Token:
 
+1.) Perform the login endpoint with basic auth to get the auth token.
+2.) If you do not have user credentials, call the /register - endpoint with a POST request body that includes the following fields:
+
+   {
+     "name": "your_name",
+     "email": "your_email",
+     "password": "your_password"
+   }
+
+Example-
+`curl -X POST http://localhost:5000/auth/register -H "Content-Type: application/json" -d '{
+  "name": "John Doe",
+  "email": "johndoe@example.com",
+  "password": "securepassword"
+}'`
+
+Or Login to get auth token
+`curl -X POST http://localhost:5000/auth/login -H "Content-Type: application/json" -d '{
+  "email": "johndoe@example.com",
+  "password": "securepassword"
+}'`
+
+3.) Accessing a Protected Endpoint
+`curl -X GET http://localhost:5000/protected -H "Authorization: Bearer your_jwt_token"`
