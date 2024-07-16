@@ -31,7 +31,7 @@ Flask-based web application with modular services for books, users, and authenti
 
 ### Prerequisites
 
-- Python 3.6 or higher
+- Python
 - Docker (optional, for containerization)
 
 ### Installation
