@@ -12,6 +12,19 @@ books_service = Blueprint("services", __name__)
 
 first_request_handled = False
 
+def book_data_map(book):
+    book_data = {
+            'id': book.id,
+            'book_id': book.book_id,
+            'title': book.title,
+            'description': book.description,
+            'cover_img_path': book.cover_img_path,
+            'author': {'name': book.author.name} if book.author else None,
+            'categories': [{'name': category.name} for category in book.categories],
+            'details_hash': book.details_hash
+        }
+    return book_data
+
 @books_service.before_request
 def create_tables():
     global first_request_handled
@@ -40,10 +53,10 @@ def create_category():
 @books_service.route('/books', methods=['POST'])
 def create_book():
     data = request.get_json()
-    book_id = data['bookId']
+    book_id = data['book_id']
     title = data['title']
     description = data['description']
-    cover_img_path = data.get('coverImgPath')
+    cover_img_path = data.get('cover_img_path')
     author_name = data['author']['name'] if data.get('author') else None
     categories_data = data.get('categories', [])
 
@@ -87,16 +100,8 @@ def get_books(current_user):
     books = Book.query.all()
     books_list = []
     for book in books:
-        book_data = {
-            'id': book.id,
-            'bookId': book.book_id,
-            'title': book.title,
-            'description': book.description,
-            'coverImgPath': book.cover_img_path,
-            'author': {'name': book.author.name} if book.author else None,
-            'categories': [{'name': category.name} for category in book.categories],
-            'detailsHash': book.details_hash
-        }
+        book_data = book_data_map(book)
+
         books_list.append(book_data)
     return jsonify({"books": books_list})
 
@@ -119,16 +124,7 @@ def get_categories():
 @books_service.route('/books/<int:id>', methods=['GET'])
 def get_book(id):
     book = Book.query.get_or_404(id)
-    book_data = {
-        'id': book.id,
-        'bookId': book.book_id,
-        'title': book.title,
-        'description': book.description,
-        'coverImgPath': book.cover_img_path,
-        'author': {'name': book.author.name} if book.author else None,
-        'categories': [{'name': category.name} for category in book.categories],
-        'detailsHash': book.details_hash
-    }
+    book_data = book_data_map(book)
     return jsonify(book_data)
 
 @books_service.route('/books/<int:id>', methods=['PUT'])
@@ -136,10 +132,10 @@ def update_book(id):
     data = request.get_json()
     book = Book.query.get_or_404(id)
 
-    book.book_id = data['bookId']
+    book.book_id = data['book_id']
     book.title = data['title']
     book.description = data['description']
-    book.cover_img_path = data.get('coverImgPath')
+    book.cover_img_path = data.get('cover_img_path')
 
     author_name = data['author']['name'] if data.get('author') else None
     categories_data = data.get('categories', [])
