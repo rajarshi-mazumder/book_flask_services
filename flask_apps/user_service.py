@@ -60,6 +60,7 @@ def add_user_books_started(user_id):
                 user_book_started = UserBooksStarted.query.filter_by(user_id=user.id, book_id=book.id).first()
                 if not user_book_started:
                     user_book_started = UserBooksStarted(user_id=user.id, book_id=book.id, date=datetime.now(timezone.utc))
+                    add_user_interested_categories(user.id, (cat.id for cat in book.categories))
                     db.session.add(user_book_started)
         
         db.session.commit()
@@ -67,8 +68,26 @@ def add_user_books_started(user_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-    
 
+@user_service.route("/users/<int:user_id>/intersted_categories", methods=['POST'])
+def add_user_interested_categories(user_id, category_ids):
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({'message': "No user found"}) 
+    try:
+        for category_id in category_ids:
+            category= Category.query.get(category_id)
+            if category:
+                category_interested= UserInterestedCategories.query.filter(user_id= user.id, category_id= category_id).first()
+                if not category_interested:
+                    category_interested= UserInterestedCategories(user_id= user.id, category_id= category_id, date= datetime.now(timezone.utc))
+                    db.session.add(category_interested) <- ISSUE HERE, NOT WORKING
+        
+        db.session.commit()
+        return jsonify({'message': f'User {user.name} interested categories updated'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 @user_service.route("/users/<user_id>", methods=["PUT"])
 def update_users():
