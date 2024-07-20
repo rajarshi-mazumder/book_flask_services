@@ -60,7 +60,7 @@ def add_user_books_started(user_id):
                 user_book_started = UserBooksStarted.query.filter_by(user_id=user.id, book_id=book.id).first()
                 if not user_book_started:
                     user_book_started = UserBooksStarted(user_id=user.id, book_id=book.id, date=datetime.now(timezone.utc))
-                    add_user_interested_categories(user.id, (cat.id for cat in book.categories))
+                    add_user_interested_categories(user.id, [cat.id for cat in book.categories])
                     db.session.add(user_book_started)
         
         db.session.commit()
@@ -75,13 +75,17 @@ def add_user_interested_categories(user_id, category_ids):
     if not user:
         return jsonify({'message': "No user found"}) 
     try:
-        for category_id in category_ids:
-            category= Category.query.get(category_id)
+        for category_id in category_ids:    
+            category= Category.query.filter_by(id=category_id).first()
             if category:
-                category_interested= UserInterestedCategories.query.filter(user_id= user.id, category_id= category_id).first()
+                
+                category_interested= UserInterestedCategories.query.filter_by(user_id= user.id, category_id= category_id).first()
+                
                 if not category_interested:
+                
                     category_interested= UserInterestedCategories(user_id= user.id, category_id= category_id, date= datetime.now(timezone.utc))
-                    db.session.add(category_interested) <- ISSUE HERE, NOT WORKING
+                    print(category_interested)
+                    db.session.add(category_interested)
         
         db.session.commit()
         return jsonify({'message': f'User {user.name} interested categories updated'})

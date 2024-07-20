@@ -21,12 +21,16 @@ def user_data_map(user):
     books_started_associations = UserBooksStarted.query.filter_by(user_id=user.id).order_by(desc(UserBooksStarted.date)).all()
     books_started = [{"book_id": assoc.book_id, "started_date": assoc.date} for assoc in books_started_associations]
     
+    interested_categories_associations= UserInterestedCategories.query.filter_by(user_id= user.id).order_by(desc(UserInterestedCategories.date)).all()
+    interested_categories= [{"category_id": assoc.category_id, "interested_date":assoc.date} for assoc in interested_categories_associations]
+    
     user_data = {
         "id": user.id,
         "name": user.name,
         "email": user.email,
         "password": user.password,
-        "books_started": books_started
+        "books_started": books_started,
+        "interested_categories":interested_categories,
     }
     return user_data
 
