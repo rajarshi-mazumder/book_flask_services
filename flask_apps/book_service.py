@@ -20,7 +20,7 @@ def book_data_map(book):
             'description': book.description,
             'cover_img_path': book.cover_img_path,
             'author': {'name': book.author.name} if book.author else None,
-            'categories': [{'name': category.name} for category in book.categories],
+            'categories': [{'category_id': category.id, 'category_name': category.name} for category in book.categories],
             'details_hash': book.details_hash
         }
     return book_data
@@ -113,8 +113,8 @@ def get_categories():
 
     for c in categories:
         categories_map.append({
-            "id": c.id,
-            "name":c.name
+            "category_id": c.id,
+            "category_name":c.name
             })
 
     return jsonify({
