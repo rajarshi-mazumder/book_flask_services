@@ -99,7 +99,7 @@ def create_book():
 def get_books(current_user):
 
     page= request.args.get("page", 1, type=int)
-    per_page= request.args.get("per_page", 4, type=int)
+    per_page= request.args.get("per_page", 10, type=int)
     books_list = []
     pagination  = Book.query.paginate(page=page, per_page=per_page, error_out= False)
     print(f"made RDS call ")
