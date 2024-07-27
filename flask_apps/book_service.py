@@ -97,13 +97,18 @@ def create_book():
 @books_service.route('/books', methods=['GET'])
 @auth_required
 def get_books(current_user):
-    books = Book.query.all()
-    books_list = []
-    for book in books:
-        book_data = book_data_map(book)
 
+    page= request.args.get("page", 1, type=int)
+    per_page= request.args.get("per_page", 4, type=int)
+    books_list = []
+    pagination  = Book.query.paginate(page=page, per_page=per_page, error_out= False)
+    print(f"made RDS call ")
+    
+    for book in pagination.items:
+        book_data = book_data_map(book)
         books_list.append(book_data)
-    return jsonify({"books": books_list})
+
+    return jsonify({"books": books_list, "total_page": pagination.pages, "current_page": pagination.page, "has_next":pagination.has_next})
 
 @books_service.route("/categories", methods=['GET'])
 def get_categories():
