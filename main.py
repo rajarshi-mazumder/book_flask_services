@@ -4,6 +4,7 @@ from config import Config
 from flask_apps.book_service import books_service
 from flask_apps.user_service import user_service
 from flask_apps.auth_service import auth_service
+from flask_apps.app_service import app_service
 from models.sqlalchemy_setup import db
 from models.users import User
 from flask_jwt_extended import JWTManager, decode_token, jwt_required, get_jwt_identity
@@ -23,6 +24,7 @@ db.init_app(app)
 app.register_blueprint(books_service)
 app.register_blueprint(user_service)
 app.register_blueprint(auth_service)
+app.register_blueprint(app_service)
 
 def token_required(f):
     @wraps(f)

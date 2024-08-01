@@ -3,6 +3,7 @@ from config import Config
 from models.sqlalchemy_setup import db
 from models.books import  Book, Author, Category
 from models.users import User, UserBooksStarted, UserInterestedCategories, UserBooksRead
+from models.additional_user_data import AdditionalAppData
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
@@ -59,7 +60,7 @@ def silent_login():
         return make_response(jsonify({'message':'user not found'}), 404)
     
     user_data = user_data_map(current_user)
-    return jsonify({"user_data":user_data}), 200
+    return jsonify({"user_data":user_data, "app_data":get_app_data}), 200
 
 @auth_service.route("/login")
 def login():
@@ -78,7 +79,7 @@ def login():
 
         user_data = user_data_map(user)
         print({"user_data": user_data})
-        return jsonify({'token': token, "user_data": user_data})
+        return jsonify({'token': token, "user_data": user_data, "app_data":get_app_data()})
     
     return make_response('Could not verify 3rd', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
@@ -95,7 +96,7 @@ def register():
     new_user= create_user_object(name, email, password)
     token = create_access_token(identity={'id': new_user.id}, expires_delta= token_expiration_time)
     user_data = user_data_map(new_user)
-    return jsonify({'token': token, "user_data":user_data})
+    return jsonify({'token': token, "user_data":user_data,  "app_data":get_app_data})
 
 
 def create_user_object(name, email, password):
@@ -111,3 +112,8 @@ def create_user_object(name, email, password):
     db.session.commit()
 
     return new_user
+
+def get_app_data():
+    app_data= AdditionalAppData.query.first()
+
+    return {"last_books_list_versionl": app_data.last_books_list_version}
