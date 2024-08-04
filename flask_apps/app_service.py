@@ -16,26 +16,51 @@ app_service= Blueprint("app_service", __name__)
 def update_app_data():
     data = request.get_json()
     last_books_list_version = data.get("last_books_list_version")
+    last_categories_list_version = data.get("last_categories_list_version")
+    
+    # Fetch the singleton instance of AdditionalAppData
+    app_data = AdditionalAppData.query.first()
 
+    # Ensure a default value for books list version if not provided
     if not last_books_list_version:
-        return jsonify({"error": "booksListVersion is required"}), 400
+        if app_data and app_data.last_books_list_version is not None:
+            last_books_list_version = app_data.last_books_list_version
+        else:
+            last_books_list_version = "1.0"
+
+    # Ensure a default value for categories list version if not provided
+    if not last_categories_list_version:
+        if app_data and hasattr(app_data, 'last_categories_list_version') and app_data.last_categories_list_version is not None:
+            last_categories_list_version = app_data.last_categories_list_version
+        else:
+            last_categories_list_version = "1.0"
 
     try:
-        # Fetch the singleton instance of AdditionalAppData
-        app_data = AdditionalAppData.query.first()
-        
         # If no record exists, create one
         if app_data is None:
-            app_data = AdditionalAppData(last_books_list_version=last_books_list_version)
+            app_data = AdditionalAppData(
+                last_books_list_version=last_books_list_version,
+                last_categories_list_version=last_categories_list_version
+            )
             db.session.add(app_data)
         else:
             # Update the existing record
             app_data.last_books_list_version = last_books_list_version
-        
+            app_data.last_categories_list_version = last_categories_list_version
+
         # Commit the changes to the database
         db.session.commit()
-        return jsonify({"message": "Books list version updated successfully"}), 200
-    
+        return jsonify({"message": "App data updated successfully"}), 200
+
     except Exception as e:
         db.session.rollback()  # Rollback in case of an error
         return jsonify({"error": str(e)}), 500
+
+    
+@app_service.route("/app_data", methods=["GET"])
+def get_app_data():
+    app_data= AdditionalAppData.query.first()
+    print(app_data)
+    return {"app_data": {"last_books_list_version": app_data.last_books_list_version,
+                         "last_categories_list_version":app_data.last_categories_list_version,
+                         }}

@@ -116,4 +116,6 @@ def create_user_object(name, email, password):
 def get_app_data():
     app_data= AdditionalAppData.query.first()
 
-    return {"last_books_list_version": app_data.last_books_list_version}
+    return {"last_books_list_version": app_data.last_books_list_version,
+            "last_categories_list_version": app_data.last_categories_list_version
+            }

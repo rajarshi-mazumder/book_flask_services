@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, Blueprint
 from config import Config
 from models.books import db, Book, Author, BookCategory, BookDetails, Category
+from models.collections import Collection
 from .auth_service import auth_required
 import hashlib
 import json
@@ -115,7 +116,7 @@ def get_books(current_user):
         book_data = book_data_map(book)
         books_list.append(book_data)
 
-    print(f"made RDS call ")
+    print(f"made RDS call to get books")
 
     return jsonify({"books": books_list})
 
@@ -258,4 +259,62 @@ def get_book_details(id):
     return jsonify({"book_data": book_data})
 
 
+@books_service.route("/collections", methods=["POST"])
+def add_collection():
+    try:
+        id = data.get('id')
+        data = request.get_json()
+        name = data.get('name')
+        description = data.get('description')
+        collection_img_path= data.get('collection_img_path')
+        categories_data = data.get('categories', [])
+
+        if id:
+            existing_collection= Collection.query.get(id)
+            if existing_collection:
+                return jsonify({"error": "Collection with this ID already exists"}), 400
+      
+        if not name:
+            return jsonify({"error": "Collection name is required"}), 400
+        
+        categories = []
+        for cat_name in categories_data:
+            category = Category.query.filter_by(name=cat_name).first()
+            if not category:
+                category = Category(name=cat_name)
+                db.session.add(category)
+                db.session.commit()
+            categories.append(category)
+
     
+        collection= Collection(
+            name=name,
+            collection_img_path= collection_img_path,
+            description= description,
+            categories=categories
+        )
+        db.session.add(collection)
+        db.session.commit()
+
+        return jsonify({"message": "Collection added successfully", "collection": collection.name}), 201
+    except Exception as e:
+        return jsonify({f"message":"Error creating collection {e}"}), 500
+
+@books_service.route("/collections")
+def get_collections():
+    try:
+        collections= Collection.query.all()
+        collections_list=[]
+        for collection in collections:
+            collection_data={
+                "id":collection.id,
+                "name": collection.name,
+                "description": collection.description,
+                "collection_img_path":collection.collection_img_path,
+                "categories":[{'category_id': category.id, 'category_name': category.name} for category in collection.categories],
+            }
+            collections_list.append(collection_data)
+        
+        return jsonify({"collection_data": collections_list}), 201
+    except:
+        return jsonify({"message":"Error fetching collections"}), 500
