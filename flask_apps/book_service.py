@@ -30,6 +30,19 @@ def book_data_map(book):
         }
     return book_data
 
+def collection_data_map(collection):
+        
+        collection_img_pre_signed_url= generate_pre_signed_url(collection.collection_img_path)
+        collection_data={
+            "id":collection.id,
+            "name": collection.name,
+            "description": collection.description,
+            "collection_img_path":collection.collection_img_path,
+            "categories":[{'category_id': category.id, 'category_name': category.name} for category in collection.categories],
+            "collection_img_pre_signed_url": collection_img_pre_signed_url,
+        }
+        return collection_data
+
 @books_service.before_request
 def create_tables():
     global first_request_handled
@@ -312,13 +325,7 @@ def get_collections():
         collections= Collection.query.all()
         collections_list=[]
         for collection in collections:
-            collection_data={
-                "id":collection.id,
-                "name": collection.name,
-                "description": collection.description,
-                "collection_img_path":collection.collection_img_path,
-                "categories":[{'category_id': category.id, 'category_name': category.name} for category in collection.categories],
-            }
+            collection_data=collection_data_map(collection)
             collections_list.append(collection_data)
         
         return jsonify({"collection_data": collections_list}), 200
