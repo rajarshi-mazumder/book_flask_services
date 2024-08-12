@@ -5,6 +5,7 @@ from models.collections import Collection
 from .auth_service import auth_required
 import hashlib
 import json
+from .storage_service import generate_pre_signed_url
 
 books_service = Blueprint("services", __name__)
 
@@ -14,6 +15,8 @@ books_service = Blueprint("services", __name__)
 first_request_handled = False
 
 def book_data_map(book):
+
+    cover_img_pre_signed_url= generate_pre_signed_url(book.cover_img_path)
     book_data = {
             'id': book.id,
             'book_id': book.book_id,
@@ -22,7 +25,8 @@ def book_data_map(book):
             'cover_img_path': book.cover_img_path,
             'author': {'name': book.author.name} if book.author else None,
             'categories': [{'category_id': category.id, 'category_name': category.name} for category in book.categories],
-            'details_hash': book.details_hash
+            'details_hash': book.details_hash,
+            'cover_img_pre_signed_url':cover_img_pre_signed_url,
         }
     return book_data
 
@@ -111,14 +115,15 @@ def get_books(current_user):
     # return jsonify({"books": books_list, "total_page": pagination.pages, "current_page": pagination.page, "has_next":pagination.has_next})
 
     books = Book.query.all()
-
-    for book in books:
-        book_data = book_data_map(book)
-        books_list.append(book_data)
-
     print(f"made RDS call to get books")
+    try:
+        for book in books:
+            book_data = book_data_map(book)
+            books_list.append(book_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500 
 
-    return jsonify({"books": books_list})
+    return {"books": books_list}
 
 @books_service.route("/categories", methods=['GET'])
 def get_categories():
@@ -262,6 +267,7 @@ def get_book_details(id):
 @books_service.route("/collections", methods=["POST"])
 def add_collection():
     try:
+        data = request.get_json()
         id = data.get('id')
         data = request.get_json()
         name = data.get('name')
@@ -296,7 +302,7 @@ def add_collection():
         db.session.add(collection)
         db.session.commit()
 
-        return jsonify({"message": "Collection added successfully", "collection": collection.name}), 201
+        return jsonify({"message": "Collection added successfully", "collection": collection.name}), 200
     except Exception as e:
         return jsonify({f"message":"Error creating collection {e}"}), 500
 
@@ -315,6 +321,6 @@ def get_collections():
             }
             collections_list.append(collection_data)
         
-        return jsonify({"collection_data": collections_list}), 201
+        return jsonify({"collection_data": collections_list}), 200
     except:
         return jsonify({"message":"Error fetching collections"}), 500

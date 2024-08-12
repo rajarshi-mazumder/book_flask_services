@@ -17,6 +17,7 @@ def update_app_data():
     data = request.get_json()
     last_books_list_version = data.get("last_books_list_version")
     last_categories_list_version = data.get("last_categories_list_version")
+    last_collections_list_version = data.get("last_collections_list_version")
     
     # Fetch the singleton instance of AdditionalAppData
     app_data = AdditionalAppData.query.first()
@@ -35,18 +36,28 @@ def update_app_data():
         else:
             last_categories_list_version = "1.0"
 
+    # Ensure a default value for categories list version if not provided
+    if not last_collections_list_version:
+        if app_data and hasattr(app_data, 'last_collections_list_version') and app_data.last_collections_list_version is not None:
+            last_collections_list_version = app_data.last_collections_list_version
+        else:
+            last_collections_list_version = "1.0"
+
+
     try:
         # If no record exists, create one
         if app_data is None:
             app_data = AdditionalAppData(
                 last_books_list_version=last_books_list_version,
-                last_categories_list_version=last_categories_list_version
+                last_categories_list_version=last_categories_list_version,
+                last_collections_list_version=last_collections_list_version
             )
             db.session.add(app_data)
         else:
             # Update the existing record
             app_data.last_books_list_version = last_books_list_version
             app_data.last_categories_list_version = last_categories_list_version
+            app_data.last_collections_list_version= last_collections_list_version
 
         # Commit the changes to the database
         db.session.commit()
@@ -63,4 +74,5 @@ def get_app_data():
     print(app_data)
     return {"app_data": {"last_books_list_version": app_data.last_books_list_version,
                          "last_categories_list_version":app_data.last_categories_list_version,
+                         "last_collections_list_version":app_data.last_collections_list_version
                          }}

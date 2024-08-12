@@ -8,6 +8,7 @@ class AdditionalAppData(db.Model):
     id = db.Column(db.Integer, primary_key=True, default=1)
     last_books_list_version= db.Column(db.String(20))
     last_categories_list_version= db.Column(db.String(20))
+    last_collections_list_version= db.Column(db.String(20))
 
     def __repr__(self):
         return f'<AdditionalAppData {self.last_books_list_version} {self.last_categories_list_version}>'
