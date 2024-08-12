@@ -5,7 +5,6 @@ from models.sqlalchemy_setup import db
 from models.users import User, UserBooksStarted, UserBooksRead, UserInterestedCategories
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
-import jwt
 from datetime import datetime, timezone, timedelta
 from flask_jwt_extended import JWTManager, create_access_token
 from .auth_service import auth_required, create_user_object, user_data_map

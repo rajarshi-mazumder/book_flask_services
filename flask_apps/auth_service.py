@@ -6,7 +6,6 @@ from models.users import User, UserBooksStarted, UserInterestedCategories, UserB
 from models.additional_user_data import AdditionalAppData
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
-import jwt
 from datetime import datetime, timezone, timedelta
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required,  get_jwt_identity
 from functools import wraps
