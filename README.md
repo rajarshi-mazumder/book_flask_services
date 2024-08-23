@@ -1,6 +1,6 @@
 ## Overview
 
-Flask-based web application with modular services for books, users, and authentication. It uses SQLAlchemy for ORM and JWT for authentication.
+Flask-based web application with modular services for books, users, and authentication. It uses SQLAlchemy for ORM and JWT for authentication.  
 The frontend for this project is in Flutter, and can be found here- 
 https://github.com/rajarshi-mazumder/Book_Flutter_app
 
